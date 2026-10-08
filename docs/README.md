@@ -140,3 +140,6 @@ Therefore, he needs 4 + 2 =<<4+2=6>>6 pieces of pizza for this day. How many pie
 - **Self-Prompting Loops**: Due to the conversational nature of the training data, the model may occasionally attempt to generate the next "User:" turn or ask a clarifying question at the end of its response, as seen in the pizza example where it ends with "How many pieces did he eat at first?" The provided inference script includes stop sequences to mitigate this, but it may still occur in raw generation.
 
 - **Sequence Length Constraint**: The model is trained with a max sequence length of 512 tokens, which allows for longer and more complex responses compared to the previous 128-token limit.
+
+### Github repository
+https://github.com/TheOfficialFurkanNar/gpt-2_instruct-v0.6.git
