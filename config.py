@@ -8,7 +8,7 @@ class ChatConfig:
 
     model_name: str = "FurkanNar/GPT-2_Instruct-v0.6"
     local_model_path: str = ""  # If set, uses local model path instead of downloading from HF
-    system_prompt: str = "You are a helpful AI assistant trained on mathematical reasoning tasks. When solving math problems, think step by step and show your work clearly. Provide accurate and well-reasoned answers."
+    system_prompt: str = "You are a mathematical reasoning assistant. When solving math problems, think step by step and show your work clearly using the format: calculation = <<calculation>> result. Provide accurate and well-reasoned answers."
     max_length: int = 512
     max_new_tokens: int = 256
     temperature: float = 0.7  # Generation temperature for sampling
