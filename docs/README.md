@@ -4,7 +4,7 @@ datasets:
 - ChilleD/SVAMP
 - tatsu-lab/alpaca
 - databricks/databricks-dolly-15k
-- openai/gsm8k
+- HuggingFaceH4/ultrachat_200k
 language:
 - en
 metrics:
@@ -17,55 +17,51 @@ library_name: transformers
 tags:
 - text-generation-inference
 ---
-# GPT-2 Instruct Model Fine-tuning (Version 0.6)
+# GPT-2 Instruct Model v0.6 Fine-tuning
 
-This project continues fine-tuning the GPT-2 model from [FurkanNar/GPT-2_Instruct-v0.5](https://huggingface.co/FurkanNar/GPT-2_Instruct-v0.5) on the GSM8K dataset for mathematical reasoning tasks.
+This is **v0.6** of the GPT-2 Instruct model, a continued fine-tuning of [FurkanNar/GPT-2_Instruct-v0.5](https://huggingface.co/FurkanNar/GPT-2_Instruct-v0.5) on the [HuggingFaceH4/ultrachat_200k](https://huggingface.co/datasets/HuggingFaceH4/ultrachat_200k) dataset for improved instruction-following capabilities.
 
 ## Model & Dataset
 
-- **Base Model**: [openai-community/gpt2](https://huggingface.co/openai-community/gpt2)
-- **Training Dataset**: [openai/gsm8k](https://huggingface.co/datasets/openai/gsm8k) - Grade school math word problems
-- **Architecture**: GPT2LMHeadModel
-- **Tokenizer**: GPT2 tokenizer
-- **Criterion**: Cross entropy loss
+- **Base Model**: [FurkanNar/GPT-2_Instruct-v0.5](https://huggingface.co/FurkanNar/GPT-2_Instruct-v0.5)
+- **Training Dataset**: This version (v0.6) was trained on **HuggingFaceH4/ultrachat_200k** - A large-scale multi-turn conversation dataset for instruction following
+- **Previous Training**: v0.5 was trained on Alpaca, SVAMP, and Dolly-15k datasets
 
 ## Training Hyperparameters
 
 | Parameter | Value |
 |-----------|-------|
+| Tokenizer | gpt2 |
+| Dataset | HuggingFaceH4/ultrachat_200k (10,000 train samples, 1,000 test samples) |
+| Max Sequence Length | 512 tokens |
 | Epochs | 4 |
 | Batch Size | 8 |
-| Learning Rate | 2e-5 |
-| Max Gradient Norm | 1.0 |
-| Max Sequence Length | 512 tokens |
-| Mixed Precision | FP16 (enabled) |
-| Tokenizer | GPT2 |
-| Architecture | GPT2LMHeadModel |
-| Criterion | Cross entropy loss |
-| Dataset | openai/gsm8k |
+| Learning Rate | 2e-5 (AdamW optimizer) |
+| Max Gradient Norm | 1.0 (gradient clipping) |
+| Precision | Mixed Precision (FP16) via torch.cuda.amp autocasting |
 
 ## Training Results
 
 ### Epoch Summaries
 
 | Epoch | Train Loss | Train Perplexity | Val Loss | Val Perplexity |
-| :--- | :--- | :--- | :--- | :--- |
-| **Epoch 1** | 1.8436 | 6.3195 | 1.6553 | 5.2347 |
-| **Epoch 2** | 1.7268 | 5.6227 | 1.6014 | 4.9598 |
-| **Epoch 3** | 1.6533 | 5.2241 | 1.5683 | 4.7985 |
-| **Epoch 4** | 1.5987 | 4.9468 | 1.5477 | 4.7007 |
+|-------|------------|------------------|----------|----------------|
+| 1 | 2.5944 | 13.39 | 2.2924 | 9.90 |
+| 2 | 2.4324 | 11.39 | 2.2483 | 9.47 |
+| 3 | 2.3656 | 10.65 | 2.2236 | 9.24 |
+| 4 | 2.3174 | 10.15 | 2.2063 | 9.08 |
 
 ### Loss Progress
 
-![Loss Progress](loss_plot.png)
+![Loss Progress](loss_progress.png)
 
-The model shows consistent improvement in both training and validation loss across all epochs. The validation loss decreases from 1.6553 to 1.5477, indicating the model is learning effectively without significant overfitting.
+The model shows consistent improvement in both training and validation loss across all epochs. The validation loss decreases from 2.2924 to 2.2063, indicating the model is learning effectively without significant overfitting.
 
 ### Perplexity Progress
 
-![Perplexity Progress](perplexity_plot.png)
+![Perplexity Progress](perplexity_progress.png)
 
-Perplexity follows a similar downward trend, with training perplexity dropping from 6.32 to 4.95 and validation perplexity from 5.23 to 4.70. The narrowing gap between training and validation perplexity suggests the model is generalizing well.
+Perplexity follows a similar downward trend, with training perplexity dropping from 13.39 to 10.15 and validation perplexity from 9.90 to 9.08. The narrow gap between training and validation perplexity suggests the model is generalizing well.
 
 ## Model Artifacts
 
@@ -102,6 +98,7 @@ The model uses a sophisticated **Best-of-N sampling** approach with multiple adv
 | Repetition Penalty | 1.15  | Penalizes repeated tokens to reduce redundancy |
 | Best-of-N | 4     | Number of candidate responses to sample and score per turn |
 | Max New Tokens | 256   | Maximum response length |
+| Max Length | 512   | Maximum sequence length (input + output) |
 
 ### Multi-Turn Conversation
 
@@ -112,24 +109,33 @@ The model uses a sophisticated **Best-of-N sampling** approach with multiple adv
 ### Example Output
 
 ```
-You: Albert is wondering how much pizza he can eat in one day. He buys 2 large pizzas and 2 small pizzas. A large pizza has 16 slices and a small pizza has 8 slices. If he eats it all, how many pieces does he eat that day?
+You: How to make a salad
 
 --- Best-of-4 Candidate Scores ---
-   Candidate 1: Log-Likelihood = -0.6860 | Geom Mean Prob = 50.4% (256 tokens)
-   Candidate 2: Log-Likelihood = -0.7474 | Geom Mean Prob = 47.4% (256 tokens)
-   Candidate 3: Log-Likelihood = -0.8518 | Geom Mean Prob = 42.7% (256 tokens)
- * Candidate 4: Log-Likelihood = -0.6173 | Geom Mean Prob = 53.9% (256 tokens)
+   Candidate 1: Log-Likelihood = -0.7616 | Geom Mean Prob = 46.7% (171 tokens)
+   Candidate 2: Log-Likelihood = -0.9515 | Geom Mean Prob = 38.6% (148 tokens)
+   Candidate 3: Log-Likelihood = -0.9907 | Geom Mean Prob = 37.1% (172 tokens)
+ * Candidate 4: Log-Likelihood = -0.7411 | Geom Mean Prob = 47.7% (172 tokens)
 -------------------------------------------------------
-AI: Albert wants to eat 16 x 2 = <<16*2=32>>32 slices of pizza that day.
-He needs 32 / 8 = <<32/8=4>>4 pizza pieces for the smaller pizza and 8 pizzas for his big pizza.
-Therefore, he needs 4 + 2 =<<4+2=6>>6 pieces of pizza for this day. How many pieces did he eat at first?
+AI: Here's an easy way to make salad: 
+
+1. Start with a small bowl of water. 2. Add diced tomatoes and cucumber to it. 3. Mix in a pinch for taste. 4. Add salt or pepper if desired. 5. Pour the dressing over the vegetables before adding them to salads. 6. Serve hot and enjoy!
+
+You: How to read a book effectively
+
+--- Best-of-4 Candidate Scores ---
+   Candidate 1: Log-Likelihood = -0.9790 | Geom Mean Prob = 37.6% (256 tokens)
+   Candidate 2: Log-Likelihood = -0.9396 | Geom Mean Prob = 39.1% (256 tokens)
+   Candidate 3: Log-Likelihood = -1.0409 | Geom Mean Prob = 35.3% (256 tokens)
+ * Candidate 4: Log-Likelihood = -0.8596 | Geom Mean Prob = 42.3% (204 tokens)
+-------------------------------------------------------
+AI: Reading books can be a powerful tool for learning about mathematics concepts. Here are some tips on how to read books effectively:
+
+- Read a book: You can read books online and look for specific topics that you need help with.
+- Look up relevant sources: You may find books online that are suitable for reading.
 ```
 
 ### Known Weaknesses
-
-- **Severe Capability Degradation**: Version 0.6 suffers from catastrophic forgetting. The GSM8K training significantly degraded the model's general instruction-following capabilities. While it gained some mathematical reasoning ability, this came at the cost of losing versatility in other domains. In testing, v0.6 can attempt mathematical reasoning using chain-of-thought formatting but struggles with accuracy even on basic arithmetic. **Version 0.5 is substantially more capable for general tasks and should be preferred for non-mathematical use cases.**
-
-- **Mathematical Obsession**: While this version (0.6) has improved mathematical reasoning capabilities after training on GSM8K, it has become overly focused on mathematics to the point of dysfunction. The model learned the chain-of-thought formatting (<<>>) and can attempt mathematical reasoning, but still struggles with accuracy even on basic arithmetic problems. For general instruction-following tasks, [FurkanNar/GPT-2_Instruct-v0.5](https://huggingface.co/FurkanNar/GPT-2_Instruct-v0.5) is strongly recommended, while version 0.6 may be used for mathematical problems with the understanding that accuracy is not guaranteed.
 
 - **Tight Clusters**: The model may generate similar responses across candidates, especially when the training data has limited diversity in certain domains. This can reduce the effectiveness of the Best-of-4 method when candidates are too similar.
 
@@ -139,9 +145,4 @@ Therefore, he needs 4 + 2 =<<4+2=6>>6 pieces of pizza for this day. How many pie
   - Produce hallucinations or incorrect information
   - Have difficulty with specialized domains not well-represented in the training data
 
-- **Self-Prompting Loops**: Due to the conversational nature of the training data, the model may occasionally attempt to generate the next "User:" turn or ask a clarifying question at the end of its response, as seen in the pizza example where it ends with "How many pieces did he eat at first?" The provided inference script includes stop sequences to mitigate this, but it may still occur in raw generation.
-
-- **Sequence Length Constraint**: The model is trained with a max sequence length of 512 tokens, which allows for longer and more complex responses compared to the previous 128-token limit.
-
-### Github repository
-https://github.com/TheOfficialFurkanNar/gpt-2_instruct-v0.6.git
+- **Sequence Length Constraint**: The model is trained with a max sequence length of 512 tokens, which limits the length and complexity of responses it can generate effectively.

@@ -7,7 +7,7 @@ class ChatConfig:
     """Configuration for the CLI chat application."""
 
     model_name: str = "FurkanNar/GPT-2_Instruct-v0.6"
-    local_model_path: str = ""  # If set, uses local model path instead of downloading from HF
+    local_model_path: str = r"C:\Users\VICTUS\PycharmProjects\gpt-v0.6\saved_model"  # If set, uses local model path instead of downloading from HF
     system_prompt: str = "You are a mathematical reasoning assistant. When solving math problems, think step by step and show your work clearly using the format: calculation = <<calculation>> result. Provide accurate and well-reasoned answers."
     max_length: int = 512
     max_new_tokens: int = 256
@@ -28,7 +28,11 @@ class ChatConfig:
         "\nHuman:",
         "### Instruction:",
         "### Response:",
-        "###"
+        "###",
+        "user:",
+        "assistant:",
+        "User:",
+        "Assistant:"
     ])
 
 
